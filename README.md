@@ -1,39 +1,62 @@
-# Week 2 Project Module 4: Footprinting with theHarvester
+# OSINT Reconnaissance with theHarvester
 
-Cybersecurity Internship Programme — **NETWORKWALKS Batch B082**
+**NETWORKWALKS Cybersecurity Internship — Week 2, Project Module 4**
 
-This project documents passive footprinting and Open-Source Intelligence (OSINT) reconnaissance using **theHarvester** on Kali Linux.
+Passive OSINT reconnaissance against an authorised target using **theHarvester** on Kali Linux, with single-source and multi-source enumeration, evidence collection, Linux output redirection, piping, and sanitisation of sensitive reconnaissance findings.
 
-The objective was to gather publicly available information associated with the authorised target domain using different data sources, save the results as evidence, and document the process.
+## Project Summary
 
-## Environment
+| Item | Details |
+|---|---|
+| Tool | theHarvester 4.10.1 |
+| Platform | Kali Linux 2026.2 |
+| Technique | Passive OSINT / Footprinting |
+| Target | `networkwalks.com` — internship-scoped target |
+| Task 1 | Baidu — no findings returned |
+| Task 2 | Multiple sources — 3 ASNs, 2 URLs, 4 IP addresses, 32 hosts |
+| Evidence | Terminal output, screenshots and text files |
+| Disclosure | IP addresses and discovered hosts sanitised |
+
+## Objectives
+
+The objectives of this module were to:
+
+- Perform passive footprinting using theHarvester
+- Compare results from a single source with multi-source reconnaissance
+- Preserve terminal output as technical evidence
+- Observe the effect of unavailable API-backed sources
+- Review and sanitise reconnaissance findings before public disclosure
+
+## Environment & Tools
 
 - Kali Linux 2026.2
 - theHarvester 4.10.1
 - Oracle VirtualBox
 - Target: `networkwalks.com`
 
-## theHarvester Usage
+## Methodology
 
-Before beginning the reconnaissance tasks, I reviewed theHarvester's available options using:
+### 1. Tool Familiarisation
+
+Before beginning the reconnaissance tasks, I reviewed theHarvester's available options:
 
 ```bash
 theHarvester -h
 ```
 
-![theHarvester Help and Usage](screenshots/01-theharvester-help-and-usage.png)
-
-The help output confirmed the available parameters and supported data sources, including:
+The main parameters used during the project were:
 
 - `-d` — target domain
 - `-l` — result limit
 - `-b` — data source
 
+![theHarvester Help and Usage](screenshots/01-theharvester-help-and-usage.png)
+
 ---
 
-## Task 1: Footprinting with Baidu
+### 2. Task 1 — Baidu Footprinting
 
-The first task used **Baidu** as the source with a result limit of 1000.
+The first task queried **Baidu** with a result limit of 1000:
 
 ```bash
 theHarvester -d networkwalks.com -l 1000 -b baidu
@@ -41,179 +64,146 @@ theHarvester -d networkwalks.com -l 1000 -b baidu
 
 ![Task 1 Baidu Execution](screenshots/02-task1-baidu-execution.png)
 
-The command completed successfully, but Baidu returned:
+**Result:** No IP addresses, email addresses, people or hosts were returned.
 
-- No IP addresses
-- No email addresses
-- No people
-- No hosts
+A search returning no findings does not necessarily indicate a failed command. OSINT results depend on what the selected external source has indexed and makes available at the time of the query.
 
-A search returning no findings does not necessarily indicate a failed command. Results depend on what information the selected external source has indexed and makes available.
-
-### Saving the Output
-
-I repeated the command using `tee` so the output could remain visible in the terminal while also being written to a text file.
+The command output was preserved using:
 
 ```bash
 theHarvester -d networkwalks.com -l 1000 -b baidu | tee task1-baidu.txt
 ```
 
-![Task 1 Output Saved](screenshots/03-task1-baidu-output-saved.png)
+`tee` allowed the output to remain visible in the terminal while simultaneously writing it to a file.
 
-The saved file was then verified using:
-
-```bash
-pwd
-ls -l task1-baidu.txt
-realpath task1-baidu.txt
-```
-
-![Task 1 Output File Verification](screenshots/04-task1-output-file-verification.png)
-
-The file was opened using Nano to confirm that the output had been saved correctly.
-
-```bash
-nano task1-baidu.txt
-```
-
-![Task 1 Saved Output](screenshots/05-task1-saved-output-nano.png)
-
-The saved evidence is available in:
-
-```text
-evidence/task1-baidu.txt
-```
+[View Task 1 evidence](evidence/task1-baidu.txt)
 
 ---
 
-## Task 2: Footprinting with Multiple Sources
+### 3. Task 2 — Multi-Source Footprinting
 
-The second task queried all supported theHarvester sources with a result limit of 50.
+The second task queried all supported sources with a result limit of 50:
 
 ```bash
 theHarvester -d networkwalks.com -l 50 -b all
 ```
 
-![Task 2 All Sources Execution](screenshots/06-task2-all-sources-execution.png)
+![Task 2 Multi-Source Execution](screenshots/06-task2-all-sources-execution.png)
 
-Several of the supported sources require API credentials that were not configured in the local installation. theHarvester reported the unavailable sources and continued querying sources that were accessible.
+Several sources required API credentials that were not configured in the local installation. theHarvester reported those sources as unavailable while continuing to query accessible sources.
 
 The completed run returned:
 
-- 3 ASNs
-- 2 interesting URLs
-- 4 IP results
-- 32 host results
+- **3 ASNs**
+- **2 interesting URLs**
+- **4 IP addresses**
+- **32 host results**
 - No email addresses
 - No people
 - No LinkedIn users
 
 ![Task 2 Results](screenshots/07-task2-all-sources-results.png)
 
-The actual IP addresses and discovered hostnames have been intentionally redacted from the public evidence.
+**Key observation:** Multi-source enumeration produced substantially more information than the single-source Baidu query, even though several API-dependent sources were unavailable.
 
-### Saving and Verifying the Output
+## Results
 
-The Task 2 output was saved as:
+| Category | Task 1: Baidu | Task 2: Multiple Sources |
+|---|---:|---:|
+| ASNs | 0 | 3 |
+| Interesting URLs | 0 | 2 |
+| IP addresses | 0 | 4 |
+| Hosts | 0 | 32 |
+| Emails | 0 | 0 |
+| People | 0 | 0 |
 
-```text
-task2-all.txt
-```
+## Evidence Handling & Disclosure
 
-The file was verified using:
+The scan run returned infrastructure information that was redacted before publication.
 
-```bash
-ls -l task2-all.txt
-realpath task2-all.txt
-```
+For the public repository:
 
-![Task 2 Output File Verification](screenshots/08-task2-output-file-verification.png)
+- Actual IP addresses were removed
+- Discovered hostnames were removed
+- Summary counts were retained
+- Original unredacted findings were not published
 
-Rather than opening this file in Nano, I used:
+[View sanitised Task 2 evidence](evidence/task2-all-redacted.txt)
 
-```bash
-xdg-open task2-all.txt
-```
+Additional screenshots documenting execution, file verification and saved output are available in the [`screenshots/`](screenshots/) directory.
 
-This opened the output using Kali's default graphical text editor.
+## Linux Output Redirection and Pipes
 
-![Task 2 Saved Results](screenshots/09-task2-saved-results-mousepad.png)
-
-For public documentation, a sanitised version of the output was created:
-
-```text
-evidence/task2-all-redacted.txt
-```
-
-The public version retains the result counts and general tool output while removing discovered IP addresses and host information.
-
----
-
-## Linux Output Redirection
-
-While saving the results, I also worked with several Linux output-redirection methods.
-
-### `>`
+I used Linux output redirection and piping while preserving reconnaissance evidence:
 
 ```bash
-command > file.txt
+command > file.txt      # Write or overwrite
+command >> file.txt     # Append
+command1 | command2     # Send output from one command into another
+command | tee file.txt  # Display and save
 ```
 
-Writes command output to a file. Existing file contents are replaced.
+The pipe operator `|` passes the standard output of the command on its left to the standard input of the command on its right.
 
-### `>>`
+For example:
 
 ```bash
-command >> file.txt
+theHarvester -d networkwalks.com -l 1000 -b baidu | tee task1-baidu.txt
 ```
 
-Appends command output to an existing file.
+Here, theHarvester produces the reconnaissance output, `|` passes that output to `tee`, and `tee` displays it in the terminal while also writing it to `task1-baidu.txt`.
 
-### `tee`
+This allowed me to view the results while saving a copy as evidence.
 
-```bash
-command | tee file.txt
-```
+## Key Observations
 
-Displays the command output in the terminal while simultaneously writing a copy to a file.
+- Baidu returned no findings, while the multi-source query returned 3 ASNs, 2 URLs, 4 IP addresses and 32 hosts.
+- Several sources used by `-b all` required API credentials that were not configured, but the remaining accessible sources continued running.
 
-For this project, `tee` was useful because I could observe theHarvester's output while creating an evidence file at the same time.
+## Skills Used
 
----
+- Passive reconnaissance and OSINT
+- theHarvester
+- Single-source and multi-source enumeration
+- Linux command-line usage
+- Output redirection with `>` and `>>`
+- Piping with `|`
+- Using `tee` to display and save output
+- Evidence collection and validation
+- Working with API-dependent OSINT tooling
+- Security-conscious evidence sanitisation
+- Technical documentation
 
-## Observations
-
-- Different OSINT sources can return significantly different results for the same target.
-- A reconnaissance source returning no findings does not necessarily indicate that the command failed.
-- Some theHarvester sources require external API credentials.
-- Using `-b all` attempts multiple sources, but not every source will necessarily be available.
-- Accessible sources can still produce useful reconnaissance information when some API-backed sources are unavailable.
-- Reconnaissance results may contain infrastructure information that should not automatically be published.
-
-## What I Learned
-
-This module provided practical experience with:
-
-- Passive footprinting and OSINT reconnaissance
-- theHarvester command syntax
-- Querying individual and multiple OSINT sources
-- API-dependent reconnaissance sources
-- Saving terminal output as evidence
-- Linux output redirection using `>`, `>>`, and `tee`
-- File verification using `pwd`, `ls`, and `realpath`
-- Opening files through both terminal and graphical tools
-- Sanitising reconnaissance evidence before public disclosure
-
-## Ethical Use and Scope
+## Ethical Use & Scope
 
 This project was completed for educational purposes as part of the **NETWORKWALKS Cybersecurity Internship Programme**.
 
-The reconnaissance activity was performed against the internship-scoped target. Technical findings that could expose infrastructure details have been redacted from this public repository.
+The reconnaissance activity was performed against the internship-scoped target. Technical findings that could unnecessarily expose infrastructure details have been removed from the public repository.
+
+## Repository Structure
+
+```text
+.
+├── evidence/
+│   ├── task1-baidu.txt
+│   └── task2-all-redacted.txt
+├── screenshots/
+│   ├── 01-theharvester-help-and-usage.png
+│   ├── 02-task1-baidu-execution.png
+│   ├── 03-task1-baidu-output-saved.png
+│   ├── 04-task1-output-file-verification.png
+│   ├── 05-task1-saved-output-nano.png
+│   ├── 06-task2-all-sources-execution.png
+│   ├── 07-task2-all-sources-results.png
+│   ├── 08-task2-output-file-verification.png
+│   └── 09-task2-saved-results-mousepad.png
+└── README.md
+```
 
 ## Author
 
 **Prince Manu Gyebi**  
 Cybersecurity Intern — Batch B082  
-**NETWORKWALKS**
+NETWORKWALKS
 
 LinkedIn: [Prince Manu Gyebi](https://www.linkedin.com/in/princemanugyebi)
